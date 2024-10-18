@@ -1,0 +1,44 @@
+package com.jlab.JLabWebToApi.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.jlab.JLabWebToApi.model.Customer;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+public class CustomerService {
+
+    private final RestTemplate restTemplate;
+    private final String apiUrl = "http://localhost:8080/api/customers";  // 這裡是 JLabSamleForSpring6 API 的 URL
+
+    @Autowired
+    public CustomerService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    // 從 API 獲取所有客戶
+    public List<Customer> getAllCustomers() {
+        ResponseEntity<Customer[]> response = restTemplate.getForEntity(apiUrl, Customer[].class);
+        return Arrays.asList(response.getBody());
+    }
+
+    // 新增客戶
+    public void addCustomer(Customer customer) {
+        HttpEntity<Customer> request = new HttpEntity<>(customer);
+        restTemplate.postForEntity(apiUrl, request, Customer.class);
+    }
+
+    // 刪除客戶
+    public void deleteCustomer(Long id) {
+        String deleteUrl = apiUrl + "/" + id;
+        restTemplate.exchange(deleteUrl, HttpMethod.DELETE, null, Void.class);
+    }
+}
